@@ -53,9 +53,9 @@ usertrap(void)
   if(r_scause() == 8){
     // system call
 
-    if(p->killed)
+    if(p->killed){
       exit(-1);
-
+}
     // sepc points to the ecall instruction,
     // but we want to return to the next instruction.
     p->trapframe->epc += 4;
@@ -67,6 +67,28 @@ usertrap(void)
     syscall();
   } else if((which_dev = devintr()) != 0){
     // ok
+   
+  } else if (r_scause() == 13 || r_scause() == 15){
+    //check the faulting address
+    uint64 stval = r_stval();
+    if(stval >= p->sz){
+     p->killed = 1;
+     exit(-1);
+     }
+    //allocate physical page
+     char *newlyAllocated = kalloc();
+     
+     if(newlyAllocated == 0){
+       p->killed = 1;
+       exit(-1);
+       }
+     if(mappages(p->pagetable, PGROUNDDOWN(stval), PGSIZE, (uint64)newlyAllocated, PTE_W | PTE_X | PTE_R | PTE_U) <0){
+     kfree(newlyAllocated);
+     p->killed =1;
+     exit(-1);
+     }
+     
+   
   } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());

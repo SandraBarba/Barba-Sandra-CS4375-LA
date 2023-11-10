@@ -43,12 +43,24 @@ sys_sbrk(void)
 {
   int addr;
   int n;
+ //increment or decrement the virtual memory space
+  int newsz;
 
   if(argint(0, &n) < 0)
     return -1;
+    
   addr = myproc()->sz;
-  if(growproc(n) < 0)
+  newsz = addr +n; 
+  
+ //if(growproc(n) < 0) 
+ //without this will not allocate physical memory
+ 
+ //if not below trapframe return error
+  if(newsz < addr || newsz > TRAPFRAME)
     return -1;
+   
+  myproc()->sz = newsz;
+  //return old size
   return addr;
 }
 
@@ -107,3 +119,13 @@ sys_getprocs(void)
     return -1;
   return(procinfo(addr));
 }
+
+uint64
+sys_freepmem(void)
+{
+
+
+    return (nfreepages() * PGSIZE);
+
+}
+
