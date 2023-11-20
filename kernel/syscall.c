@@ -106,6 +106,8 @@ extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_getprocs(void);
 extern uint64 sys_freepmem(void);
+extern uint64 sys_munmap(void);
+extern uint64 sys_mmap(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -131,6 +133,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_getprocs]   sys_getprocs,
 [SYS_freepmem]   sys_freepmem,
+[SYS_munmap]  sys_munmap,
+[SYS_mmap]    sys_mmap, 
 };
 
 void

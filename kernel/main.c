@@ -31,6 +31,7 @@ main()
     userinit();      // first user process
     __sync_synchronize();
     started = 1;
+    mmrlistinit(); //ADDED FOR HW5 Call to initialize the memory-mapped region list
   } else {
     while(started == 0)
       ;
