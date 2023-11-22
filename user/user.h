@@ -26,9 +26,7 @@ int sleep(int);
 int uptime(void);
 int getprocs(struct pstat*);
 int freepmem(void);
-//int munpam(void);
 int munmap(void *addr, int len);
-//int mmap(void);
 void *mmap(void *addr, int len, int prot, int flags, int fildes, int off);
 
 // ulib.c

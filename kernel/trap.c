@@ -52,10 +52,10 @@ usertrap(void)
   
   if(r_scause() == 8){
     // system call
-
-    if(p->killed){
+ 
+    if(p->killed)
       exit(-1);
-}
+
     // sepc points to the ecall instruction,
     // but we want to return to the next instruction.
     p->trapframe->epc += 4;
@@ -65,16 +65,41 @@ usertrap(void)
     intr_on();
 
     syscall();
+    
   } else if((which_dev = devintr()) != 0){
     // ok
-   
-  } else if (r_scause() == 13 || r_scause() == 15){
+    
+  } else if (r_scause() == 13 || r_scause() == 15||r_scause()==2){
     //check the faulting address
     uint64 stval = r_stval();
+    
     if(stval >= p->sz){
-     p->killed = 1;
-     exit(-1);
-     }
+        //Check if the faulting address is in the valid memory               
+        for (int i=0; 1 < MAX_MMR; i++){
+        //check for permissions in scause
+           if (p->mmr[i].valid && stval >= p->mmr[i].addr && stval < p->mmr[i].addr + p->mmr[i].length){
+           
+           int validP =0;
+           //valid fault and correct permissions
+           
+            if(r_scause()==13 && (p->mmr[i].prot & PTE_R)){
+            validP=1;
+            }
+            else if(r_scause()==2 && (p->mmr[i].prot & PTE_V)){
+            validP=1;
+            }
+            else if(r_scause() == 15 && (p->mmr[i].prot & PTE_W)){
+            
+            validP =1;
+            }
+            //invalid permissions 
+            if(!validP){
+               p->killed=1;
+               exit(-1);
+               }                              
+       }          
+    }
+  }
     //allocate physical page
      char *newlyAllocated = kalloc();
      
@@ -82,6 +107,7 @@ usertrap(void)
        p->killed = 1;
        exit(-1);
        }
+       
      if(mappages(p->pagetable, PGROUNDDOWN(stval), PGSIZE, (uint64)newlyAllocated, PTE_W | PTE_X | PTE_R | PTE_U) <0){
      kfree(newlyAllocated);
      p->killed =1;
@@ -89,11 +115,14 @@ usertrap(void)
      }
      
    
-  } else {
+   
+   }else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
-  }
+    //exit(-1);
+    
+ }
 
   if(p->killed)
     exit(-1);
