@@ -109,7 +109,10 @@ struct mmr {
 // Per-process state
 struct proc {
   struct spinlock lock;
-
+  //section added HW5
+  struct mmr mmr[MAX_MMR];     // Array of memory-mapped regions
+  uint64 cur_max;              // Max address of free virtual memory, 
+                               // initialize to MAXVA-2*PGSIZE
   // p->lock must be held when using these:
   enum procstate state;        // Process state
   void *chan;                  // If non-zero, sleeping on chan
@@ -117,10 +120,7 @@ struct proc {
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
   int priority;		// storage priority of each process
-  //section added HW5
-  struct mmr mmr[MAX_MMR];     // Array of memory-mapped regions
-  uint64 cur_max;              // Max address of free virtual memory, 
-                               // initialize to MAXVA-2*PGSIZE
+  
 
   
   // wait_lock must be held when using this:

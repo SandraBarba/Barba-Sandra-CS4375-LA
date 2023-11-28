@@ -496,16 +496,15 @@ sys_mmap()
   struct mmr *newmmr = 0;
   uint64 start_addr =0; //initialized for hw5
 
-  /* Add error checking for length, prot, and flags arguments */
+  
+  //if (argaddr(1, &length) < 0 || length <= 0 || length > MAX_MMR)
+    //return -1;
 
-  if (argaddr(1, &length) < 0 || length <= 0 || length > MAX_MMR)
-    return -1;
+  //if (argint(2, &prot) < 0 || (prot != PROT_READ && prot != PROT_WRITE))
+    //return -1;
 
-  if (argint(2, &prot) < 0 || (prot != PROT_READ && prot != PROT_WRITE))
-    return -1;
-
-  if (argint(3, &flags) < 0 || (flags != MAP_SHARED && flags != MAP_PRIVATE && flags != (MAP_PRIVATE | MAP_ANONYMOUS)))
-    return -1;
+ // if (argint(3, &flags) < 0 || (flags != MAP_SHARED && flags != MAP_PRIVATE && flags != (MAP_PRIVATE | MAP_ANONYMOUS)))
+  //  return -1;
     /* Add error checking for length, prot, and flags arguments */
 
   if (argaddr(1, &length) < 0)
